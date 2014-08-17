@@ -24,7 +24,7 @@ def test_find_message():
     res = {}
     for i in range(0, 255):
         res[chr(i)] = score_message(s ^ [i])
-    assert res[ord('X')] == 10
+    assert res['X'] == 21
 
 # set1 q4
 def test_find_message_4():
@@ -35,5 +35,7 @@ def test_find_message_4():
             for i in range(0, 255):
                 score = score_message(hex_to_bytes(s) ^ [i])
                 scores.append([line_no, chr(i), hex_to_bytes(s) ^ [i], score])
+    assert sorted(scores, key=lambda t: t[-1])[0][2] == b'Now that the party is jumping\n'
+
 
 
