@@ -23,3 +23,8 @@ def score_message(msg):
         chars = list(char_counts.keys())[0:-1]
         score += chars.index(k) - v if k in chars else len(msg)
     return score
+
+
+def encrypt_msg(msg, key):
+    msg, key = map(ord, msg), map(ord, key)
+    return Bytes(msg) ^ Bytes(key)

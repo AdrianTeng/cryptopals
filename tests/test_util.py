@@ -1,5 +1,6 @@
-from ateng.util import bytes_to_base64, hex_to_bytes, score_message
+from ateng.util import bytes_to_base64, hex_to_bytes, score_message, encrypt_msg
 from ateng.bytes import Bytes
+from binascii import b2a_hex
 from collections import OrderedDict
 
 
@@ -32,10 +33,15 @@ def test_find_message_4():
     with open("tests/4.txt") as f:
         for line_no, s in enumerate(f):
             s = s.replace("\n", "")
-            for i in range(0, 255):
+            for i in range(0, 128):
                 score = score_message(hex_to_bytes(s) ^ [i])
                 scores.append([line_no, chr(i), hex_to_bytes(s) ^ [i], score])
     assert sorted(scores, key=lambda t: t[-1])[0][2] == b'Now that the party is jumping\n'
 
-
+#set1 q5
+def test_xor_encryption():
+    message = "Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal"
+    encrypted = b"0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226324272765272a282b2f20430a652e2c652a312\
+4333a653e2b2027630c692b20283165286326302e27282f"
+    assert b2a_hex(encrypt_msg(message, "ICE")) == encrypted
 
