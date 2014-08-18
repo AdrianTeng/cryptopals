@@ -1,4 +1,6 @@
-from ateng.util import bytes_to_base64, hex_to_bytes, score_message, encrypt_msg
+import base64
+from ateng.util import *
+from ateng.util import _count_ones
 from ateng.bytes import Bytes
 from binascii import b2a_hex
 from collections import OrderedDict
@@ -21,11 +23,10 @@ def test_xor():
 
 # set1 q3
 def test_find_message():
-    s = hex_to_bytes("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736")
-    res = {}
-    for i in range(0, 255):
-        res[chr(i)] = score_message(s ^ [i])
-    assert res['X'] == 21
+    s = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
+    res = brute_force_single_char(s)
+    assert res[0] == ['X', b"Cooking MC's like a pound of bacon", 46]
+
 
 # set1 q4
 def test_find_message_4():
@@ -33,15 +34,51 @@ def test_find_message_4():
     with open("tests/4.txt") as f:
         for line_no, s in enumerate(f):
             s = s.replace("\n", "")
-            for i in range(0, 128):
-                score = score_message(hex_to_bytes(s) ^ [i])
-                scores.append([line_no, chr(i), hex_to_bytes(s) ^ [i], score])
-    assert sorted(scores, key=lambda t: t[-1])[0][2] == b'Now that the party is jumping\n'
+            scores.extend(brute_force_single_char(s))
+    assert sorted(scores, key=lambda t: t[-1])[0][1] == b'Now that the party is jumping\n'
 
-#set1 q5
+
+# set1 q5
 def test_xor_encryption():
     message = "Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal"
     encrypted = b"0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226324272765272a282b2f20430a652e2c652a312\
 4333a653e2b2027630c692b20283165286326302e27282f"
     assert b2a_hex(encrypt_msg(message, "ICE")) == encrypted
 
+
+def test_count_ones():
+    assert _count_ones(128) == 1
+    assert _count_ones(0) == 0
+    assert _count_ones(1) == 1
+    assert _count_ones(2) == 1
+    assert _count_ones(3) == 2
+    assert _count_ones(127) == 7
+
+
+# set1 q6
+def test_hamming_distance():
+    m1 = "this is a test"
+    m2 = "wokka wokka!!!"
+    assert hamming_dis(m1, m2) == 37
+    assert hamming_dis("I am your father", "I am your father") == 0
+
+
+def test_split_cipher():
+    cipher = b'1234567890'
+    assert split_cipher(cipher, 3) == [b'1470', b'258', b'369']
+    assert split_cipher(cipher, 4) == [b'159', b'260', b'37', b'48']
+
+
+def test_break_challenge_6():
+    with open("tests/6.txt") as f:
+        content = f.readlines()
+        content = "".join(content)
+    content = base64.b64decode(content)
+    possible_block_sizes = find_keysize(content)
+    possible_keys = {}
+    for block_size, _ in possible_block_sizes:
+        # Break into blocks
+        content_blocks = split_cipher(content, block_size)
+        possible_keys[block_size] = "".join([brute_force_single_char(Bytes(block))[0][0] for block in content_blocks])
+    assert possible_keys[29] == "Terminator X: Bring the noise"
+    print(encrypt_msg(content, possible_keys[29]).decode())
