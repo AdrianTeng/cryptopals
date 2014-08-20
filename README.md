@@ -1,6 +1,6 @@
 Cryptopals
 ==========
-Cryptopals solutions in Python. See http://cryptopals.com [![Build Status](https://travis-ci.org/simkimsia/UtilityBehaviors.png)](https://travis-ci.org/AdrianTeng/Cryptopals.svg?branch=master)
+Cryptopals solutions in Python. See http://cryptopals.com [![Build Status](https://travis-ci.org/AdrianTeng/Cryptopals.svg?branch=master)](https://travis-ci.org/AdrianTeng/Cryptopals)
 
 Instructions
 ------------
