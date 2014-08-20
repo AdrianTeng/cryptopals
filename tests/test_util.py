@@ -4,6 +4,7 @@ from ateng.util import _count_ones
 from ateng.bytes import Bytes
 from binascii import b2a_hex
 from collections import OrderedDict
+from Crypto.Cipher.AES import MODE_ECB
 
 
 # set1 q1
@@ -82,3 +83,12 @@ def test_break_challenge_6():
         possible_keys[block_size] = "".join([brute_force_single_char(Bytes(block))[0][0] for block in content_blocks])
     assert possible_keys[29] == "Terminator X: Bring the noise"
     print(encrypt_msg(content, possible_keys[29]).decode())
+
+# set1 q7
+def test_break_AES_ECB_mode():
+    key = "YELLOW SUBMARINE"
+    with open("tests/7.txt") as f:
+        content = f.readlines()
+    content = "".join(content)
+    ciphertext = base64.b64decode(content)
+    print(decrypt_AES(ciphertext, MODE_ECB, key).decode())

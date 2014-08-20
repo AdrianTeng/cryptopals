@@ -8,5 +8,6 @@ setup(
     license='',
     author='ateng',
     author_email='adrian@teng.io',
-    description=''
+    description='',
+    requires=['pycrypto']
 )

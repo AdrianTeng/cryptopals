@@ -2,7 +2,7 @@ __author__ = 'ateng'
 import base64
 from ateng.bytes import Bytes
 from collections import defaultdict, OrderedDict
-from math import log2, ceil
+from Crypto.Cipher import AES
 
 
 def hex_to_bytes(n):
@@ -60,12 +60,15 @@ def find_keysize(ciphertext):
     return sorted({i: average_hamming_dis(ciphertext, i) for i in range(2, 41)}.items(), key=lambda t:t[1])[0:4]
 
 
-def split_cipher(cipher, n):
-    """Split cipher into n blocks and transpose"""
+def split_cipher(ciphertext, n):
+    """Split ciphertext into n blocks and transpose"""
     blocks = [[] for _ in range(n)]
-    for i, byte in enumerate(cipher):
+    for i, byte in enumerate(ciphertext):
         blocks[i%n].append(byte)
     return [bytes(b) for b in blocks]
 
 
-
+def decrypt_AES(ciphertext, mode, key):
+    c = AES.new(key, mode)
+    text = c.decrypt(ciphertext)
+    return text[:-text[-1]]
