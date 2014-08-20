@@ -9,5 +9,5 @@ setup(
     author='ateng',
     author_email='adrian@teng.io',
     description='',
-    requires=['pycrypto']
+    install_requires=['pycrypto>=2.6']
 )
