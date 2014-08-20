@@ -2,5 +2,5 @@ language: python
 python:
   - "3.4"
 script:
-  - python setup.py build
-  - py.test
+  - python setup.py install
+  - python setup.py test
