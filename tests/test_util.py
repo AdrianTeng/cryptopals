@@ -91,4 +91,4 @@ def test_break_AES_ECB_mode():
         content = f.readlines()
     content = "".join(content)
     ciphertext = base64.b64decode(content)
-    print(decrypt_AES(ciphertext, MODE_ECB, key).decode())
+    assert decrypt_AES(ciphertext, MODE_ECB, key).decode().split("\n")[0] == "I'm back and I'm ringin' the bell "
