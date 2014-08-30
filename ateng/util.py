@@ -3,7 +3,7 @@ import base64
 from ateng.bytes import Bytes
 from collections import defaultdict, OrderedDict
 from Crypto.Cipher import AES
-
+from functools import reduce
 
 def hex_to_bytes(n):
     return Bytes(bytes.fromhex(n))
@@ -72,3 +72,12 @@ def decrypt_AES(ciphertext, mode, key):
     c = AES.new(key, mode)
     text = c.decrypt(ciphertext)
     return text[:-text[-1]]
+
+
+def padding(msg, block_size):
+    """PKCS #7 padding"""
+    diff = block_size - len(msg)
+    assert diff > 0
+    return msg + reduce(lambda x,y: x+y, [chr(diff) for _ in range(diff)])
+
+

@@ -93,6 +93,7 @@ def test_break_AES_ECB_mode():
     assert decrypt_AES(ciphertext, MODE_ECB, key).decode().split("\n")[0] == "I'm back and I'm ringin' the bell "
 
 
+#set 1 q8
 def test_find_ECB_ciphertext():
     with open("tests/8.txt") as f:
         content = f.readlines()
@@ -106,3 +107,10 @@ def test_find_ECB_ciphertext():
          '9475C9DFDBC1D46597949D9C7E82BF5A08649AF70DC06F4FD5D2D69C744CD283',
          '97A93EAB8D6AECD566489154789A6B0308649AF70DC06F4FD5D2D69C744CD283',
          'D403180C98C8F6DB1F2A3F9C4040DEB0AB51B29933F2C123C58386B06FBA186A']
+
+
+# set 2 q9
+def test_padding():
+    msg = "YELLOW SUBMARINE"
+    assert padding(msg, 19) == "YELLOW SUBMARINE\x03\x03\x03"
+    assert padding(msg, 20) == "YELLOW SUBMARINE\x04\x04\x04\x04"
