@@ -1,10 +1,8 @@
 import base64
-from scipy.special.orthogonal import he_roots
 from ateng.util import *
 from ateng.util import _count_ones
 from ateng.bytes import Bytes
 from binascii import b2a_hex
-from collections import OrderedDict
 from Crypto.Cipher.AES import MODE_ECB
 
 
