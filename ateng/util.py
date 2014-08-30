@@ -54,10 +54,10 @@ def hamming_dis(m1, m2):
     return sum(map(_count_ones, encrypt_msg(m1, m2)))
 
 
-def find_keysize(ciphertext):
+def find_keysize(ciphertext, upper_bound):
     def average_hamming_dis(cipher, n):
         return sum([hamming_dis(cipher[i*n: (i+1)*n], cipher[(i+1)*n: (i+2)*n])/n for i in range(4)]) / 4
-    return sorted({i: average_hamming_dis(ciphertext, i) for i in range(2, 41)}.items(), key=lambda t:t[1])[0:4]
+    return sorted({i: average_hamming_dis(ciphertext, i) for i in range(2, upper_bound)}.items(), key=lambda t:t[1])[0:4]
 
 
 def split_cipher(ciphertext, n):

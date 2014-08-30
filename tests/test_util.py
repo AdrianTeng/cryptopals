@@ -1,4 +1,5 @@
 import base64
+from scipy.special.orthogonal import he_roots
 from ateng.util import *
 from ateng.util import _count_ones
 from ateng.bytes import Bytes
@@ -75,7 +76,7 @@ def test_break_challenge_6():
         content = f.readlines()
         content = "".join(content)
     content = base64.b64decode(content)
-    possible_block_sizes = find_keysize(content)
+    possible_block_sizes = find_keysize(content, 41)
     possible_keys = {}
     for block_size, _ in possible_block_sizes:
         # Break into blocks
@@ -92,3 +93,18 @@ def test_break_AES_ECB_mode():
     content = "".join(content)
     ciphertext = base64.b64decode(content)
     assert decrypt_AES(ciphertext, MODE_ECB, key).decode().split("\n")[0] == "I'm back and I'm ringin' the bell "
+
+
+def test_find_ECB_ciphertext():
+    with open("tests/8.txt") as f:
+        content = f.readlines()
+    content = [hex_to_bytes(c.replace("\n", "")) for c in content]
+    ecb_cipher_index = min({i: find_keysize(c, 38)[0] for i, c in enumerate(content)}.items(), key=lambda t:t[1][1])
+    ecb_cipher_index = ecb_cipher_index[0]
+    ecb_cipher = content[ecb_cipher_index]
+    assert [base64.b16encode(ecb_cipher[c*32:(c+1)*32]).decode() for c in range(len(ecb_cipher)//32)] == \
+        ['D880619740A8A19B7840A8A31C810A3D08649AF70DC06F4FD5D2D69C744CD283',
+         'E2DD052F6B641DBF9D11B0348542BB5708649AF70DC06F4FD5D2D69C744CD283',
+         '9475C9DFDBC1D46597949D9C7E82BF5A08649AF70DC06F4FD5D2D69C744CD283',
+         '97A93EAB8D6AECD566489154789A6B0308649AF70DC06F4FD5D2D69C744CD283',
+         'D403180C98C8F6DB1F2A3F9C4040DEB0AB51B29933F2C123C58386B06FBA186A']
