@@ -3,7 +3,6 @@ from ateng.util import *
 from ateng.util import _count_ones
 from ateng.bytes import Bytes
 from binascii import b2a_hex
-from Crypto.Cipher.AES import MODE_ECB
 
 
 # set1 q1
@@ -90,7 +89,7 @@ def test_break_AES_ECB_mode():
         content = f.readlines()
     content = "".join(content)
     ciphertext = base64.b64decode(content)
-    assert decrypt_AES(ciphertext, MODE_ECB, key).decode().split("\n")[0] == "I'm back and I'm ringin' the bell "
+    assert decrypt_AES_ECB(ciphertext, key).decode().split("\n")[0] == "I'm back and I'm ringin' the bell "
 
 
 #set 1 q8
@@ -114,3 +113,25 @@ def test_padding():
     msg = "YELLOW SUBMARINE"
     assert padding(msg, 19) == "YELLOW SUBMARINE\x03\x03\x03"
     assert padding(msg, 20) == "YELLOW SUBMARINE\x04\x04\x04\x04"
+
+
+# set 2 q10
+def test_encrypt_AES():
+    msg = "I am your father"
+    key = "YELLOW SUBMARINE"
+    assert decrypt_AES_ECB(encrypt_AES_ECB(msg, key), key).decode() == msg
+
+
+def test_AES_CBC():
+    msg = "I am your fatherI am your father"
+    key = "YELLOW SUBMARINE"
+    assert decrypt_AES_CBC(encrypt_AES_CBC(msg, key), key) == msg
+
+
+def test_AES_CBC_decrypt():
+    key = "YELLOW SUBMARINE"
+    with open("tests/10.txt") as f:
+        content = f.readlines()
+    content = b''.join([base64.b64decode(c) for c in content])
+    msg = decrypt_AES_CBC(content, key)
+    assert msg.startswith("I'm back and I'm ringin' the bell \n")

@@ -3,6 +3,7 @@ import base64
 from ateng.bytes import Bytes
 from collections import defaultdict, OrderedDict
 from Crypto.Cipher import AES
+from Crypto.Cipher.AES import MODE_ECB
 from functools import reduce
 
 def hex_to_bytes(n):
@@ -68,10 +69,19 @@ def split_cipher(ciphertext, n):
     return [bytes(b) for b in blocks]
 
 
-def decrypt_AES(ciphertext, mode, key):
-    c = AES.new(key, mode)
+def decrypt_AES_ECB(ciphertext, key):
+    c = AES.new(key, MODE_ECB)
     text = c.decrypt(ciphertext)
-    return text[:-text[-1]]
+    # Remove padding and convert back to string
+    if len(text) % 16:
+        text = text[:-text[-1]]
+    return text
+
+
+def encrypt_AES_ECB(plaintext, key):
+    c = AES.new(key, MODE_ECB)
+    ciphertext = c.encrypt(plaintext)
+    return ciphertext
 
 
 def padding(msg, block_size):
@@ -79,5 +89,34 @@ def padding(msg, block_size):
     diff = block_size - len(msg)
     assert diff > 0
     return msg + reduce(lambda x,y: x+y, [chr(diff) for _ in range(diff)])
+
+
+def encrypt_AES_CBC(msg, key, iv=None):
+    if not iv:
+        iv = Bytes([0 for _ in range(16)])
+    if len(msg) % 16:
+        padding(msg, len(msg) + len(msg) % 16)
+    msg = [msg[i*16: (i+1)*16] for i in range(len(msg) // 16)]
+    previous_block = iv
+    ciphertext = Bytes()
+    for block in msg:
+        block = encrypt_AES_ECB(Bytes(map(ord, block)) ^ previous_block, key)
+        ciphertext += block
+        previous_block = block
+    return ciphertext
+
+
+def decrypt_AES_CBC(ciphertext, key, iv=None):
+    if not iv:
+        iv = Bytes([0 for _ in range(16)])
+    assert len(ciphertext) % 16 == 0
+    ciphertext = [ciphertext[i*16: (i+1)*16] for i in range(len(ciphertext) // 16)]
+    previous_block = iv
+    msg = ""
+    for block in ciphertext:
+        msg += (previous_block ^ decrypt_AES_ECB(block, key)).decode()
+        previous_block = Bytes(block)
+    return msg
+
 
 
