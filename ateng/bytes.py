@@ -1,7 +1,14 @@
+from matplotlib.rcsetup import validate_nseq_float
+
 __author__ = 'ateng'
 
 
-class Bytes(bytes):
+def Bytes(value=b''):
+    if isinstance(value, str):
+        value = map(ord, value)
+    return _Bytes(value)
+
+class _Bytes(bytes):
 
     def _pad(self, other):
         s = len(self)
