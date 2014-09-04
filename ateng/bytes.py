@@ -1,5 +1,3 @@
-from matplotlib.rcsetup import validate_nseq_float
-
 __author__ = 'ateng'
 
 
