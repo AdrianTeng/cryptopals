@@ -1,5 +1,9 @@
 import base64
+from mock import patch
+from random import randint
 from ateng.util import *
+from ateng.crypto import _padding
+from ateng.crypto import *
 from ateng.util import _count_ones
 from ateng.bytes import Bytes
 from binascii import b2a_hex
@@ -97,7 +101,7 @@ def test_find_ECB_ciphertext():
     with open("tests/8.txt") as f:
         content = f.readlines()
     content = [hex_to_bytes(c.replace("\n", "")) for c in content]
-    ecb_cipher_index = min({i: find_keysize(c, 38)[0] for i, c in enumerate(content)}.items(), key=lambda t:t[1][1])
+    ecb_cipher_index = min({i: find_keysize(c, 38)[0] for i, c in enumerate(content)}.items(), key=lambda t: t[1][1])
     ecb_cipher_index = ecb_cipher_index[0]
     ecb_cipher = content[ecb_cipher_index]
     assert [base64.b16encode(ecb_cipher[c*32:(c+1)*32]).decode() for c in range(len(ecb_cipher)//32)] == \
@@ -110,9 +114,9 @@ def test_find_ECB_ciphertext():
 
 # set 2 q9
 def test_padding():
-    msg = "YELLOW SUBMARINE"
-    assert padding(msg, 19) == "YELLOW SUBMARINE\x03\x03\x03"
-    assert padding(msg, 20) == "YELLOW SUBMARINE\x04\x04\x04\x04"
+    msg = b"YELLOW SUBMARINE"
+    assert _padding(msg, 19) == b"YELLOW SUBMARINE\x03\x03\x03"
+    assert _padding(msg, 20) == b"YELLOW SUBMARINE\x04\x04\x04\x04"
 
 
 # set 2 q10
@@ -135,3 +139,17 @@ def test_AES_CBC_decrypt():
     content = b''.join([base64.b64decode(c) for c in content])
     msg = decrypt_AES_CBC(content, key)
     assert msg.startswith("I'm back and I'm ringin' the bell \n")
+
+
+# set 2 q 11
+def test_ECB_encryption_oracle():
+    plaintext = "NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN"
+    with patch('ateng.crypto.randint', side_effect=lambda x, y: 1 if (x, y) == (0, 1) else randint(x, y)): # patch to run ECB
+        ciphertext = encryption_oracle(plaintext)
+    keysize, score = find_keysize(ciphertext, len(ciphertext)//4)[0]
+    assert keysize == 16
+    assert score < 2.5
+    with patch('ateng.crypto.randint', side_effect=lambda x, y: 0 if (x, y) == (0, 1) else randint(x, y)): # patch to run CBC
+        ciphertext = encryption_oracle(plaintext)
+    _, score = find_keysize(ciphertext, len(ciphertext)//4)[0]
+    assert score > 2.5
