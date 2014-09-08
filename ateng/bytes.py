@@ -2,7 +2,9 @@ from itertools import cycle, islice
  
  
 class Bytes(bytes):
-    def __new__(cls, value):
+
+    @staticmethod
+    def __new__(cls, value=b''):
         # We can't override __init__ as bytes is immutable.
         # See https://docs.python.org/3/reference/datamodel.html#object.__new__
         if isinstance(value, str):
